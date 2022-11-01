@@ -1,112 +1,152 @@
-import logo from './logo.svg';
 import './App.css';
-import React from 'react';
+import React, { useState } from 'react';
 
-const myStyle = {
-  color: "white",
-  backgroundColor: "DodgerBlue",
-  padding: "10px",
-  fontFamily: "Arial"
-};
 
-function App() {
+const quiz = [
+  {
+    name: "question_1",
+    question: "Hôm nay ăn gì?",
+    isMultiChoice: false,
+    answers: [
+      {
+        id: 1,
+        content: "Ăn mỳ"
+      },
+      {
+        id: 2,
+        content: "Ăn cơm"
+      },
+      {
+        id: 3,
+        content: "Ăn bánh mỳ"
+      },
+      {
+        id: 4,
+        content: "Ăn sushi"
+      },
+    ]
+  },
+  {
+    name: "question_2",
+    question: "Hôm nay ăn gì?",
+    isMultiChoice: true,
+    answers: [
+      {
+        id: 1,
+        content: "Ăn mỳ"
+      },
+      {
+        id: 2,
+        content: "Ăn cơm"
+      },
+      {
+        id: 3,
+        content: "Ăn bánh mỳ"
+      },
+      {
+        id: 4,
+        content: "Ăn sushi"
+      },
+    ]
+  }
+]
+
+const initState = () => {
+  const state = {}
+  const errorState = {}
+  quiz.forEach(item => {
+    let initValue = ''
+    if (item.isMultiChoice) {
+      initValue = []
+    }
+    state[item.name] = initValue
+    errorState[item.name] = ''
+  })
+  return {state, errorState}
+}
+
+const App = () => {
+  const {state, errorState} = initState()
+  const [form, setForm] = useState(state)
+  const [errorMessage, serErrorMessage] = useState(errorState)
+  const handleOnChange = (e) => {
+    setForm({...form, [e.target.name]: handleValue(e.target)})
+  }
+
+  const handleValue = (targetInput) => {
+    if (targetInput.type === "checkbox") {
+      if (targetInput.checked) {
+        return [...form[targetInput.name], targetInput.value]
+      }
+      return form[targetInput.name].filter(i => i !== targetInput.value)
+    }
+    return targetInput.value
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    let isValid = true
+    for (let key in form) {
+      if ((typeof form[key] === 'string' && !form[key]) || (typeof form[key] !== 'string' && !form[key].length)) {
+        console.log('inside', key)
+        isValid = false
+        serErrorMessage({...errorMessage, [key]: 'required'})
+      }
+    }
+
+    console.log(errorMessage)
+
+    if (!isValid) {
+      console.log(isValid)
+      return
+    }
+    // send du lieu len server
+  }
+
   return (
     <div className='container'>
       <div className='row'>
-        <div className='col-12'>
-          <h1>Project 01 - Todo List <span style={{ fontSize: '25px', color: 'gray'}}>React Js</span></h1>
-        </div>
-      </div>
-      <hr />
-      <div className='row'>
-        <div className='col-4'>
-          <div className="input-group mb-3">
-            <input type="text" className="form-control" placeholder='Search item name' />
-            <button className="btn btn-primary" type="button" id="button-addon2">Clear</button>
-          </div>
-        </div>
-        <div className='col-3'>
-          <div className="input-group mb-3">
-            <select className="form-select" id="inputGroupSelect02">
-              <option selected>Sort by</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
-            </select>
-            <button class="btn btn-success" type="button">NAME - DESC</button>
-          </div>
-        </div>
-        <div className='col-5'>
-          <div className='row'>
-            <div className='col-12 d-grid gap-2'>
-              <button className='btn btn-primary btn-block'>Add Item</button>
-            </div>
-          </div>
-          <div className='row mt-3'>
-            <div className='col-auto'>
-              <input type="text" className="form-control" placeholder="Item name" />
-            </div>
-            <div className='col-auto'>
-              <select className='form-select'>
-                <option>Small</option>
-              </select>
-            </div>
-            <div className='col-auto'>
-              <button className='btn btn-primary'>Submit</button>
-            </div>
-            <div className='col-auto'>
-              <button className='btn btn-outline-dark'>Cancel</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='row mt-3'>
-        <div className='col-12'>
-          <div className='card border-success'>
-          <h5 class="card-header bg-success text-white">List Item</h5>
-          <div class="card-body">
-            <table className='table'>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th className='text-center'>Level</th>
-                  <th className='text-center'>Action</th>
-                </tr>
-                
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Tìm thấy mảnh vỡ máy bay rơi ở Iran làm 66 người chết</td>
-                  <td className='text-center'><span className="badge text-bg-danger">High</span></td>
-                  <td className='text-center'>
-                    <button type='button' className='btn btn-warning' style={{ marginRight: '10px'}}>Edit</button>
-                    <button type='button' className='btn btn-danger'>Delete</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td><input type="text" className="form-control" value="F1 tổ chức ở Việt Name"/></td>
-                  <td className='text-center'>
-                    <select className='form-select'>
-                      <option>Small</option>
-                    </select>
-                  </td>
-                  <td className='text-center'>
-                    <button type='button' className='btn btn-outline-dark' style={{ marginRight: '10px'}} onClick={() => {alert('Cancel')}}>Cancel</button>
-                    <button type='button' className='btn btn-success'>Save</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          </div>
+        <div className='col-6'>
+        <form onSubmit={handleSubmit}>
+          {quiz.map(item => inputQuiz(
+            handleOnChange, errorMessage[item.name], item))}
+          <button className='btn btn-primary' type='submit'>Save</button>
+        </form>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export default App;
+
+
+const inputQuiz = (handleOnChange, errorMessage, {name, isMultiChoice, question, answers}) => {
+  let typeInput = "radio"
+  if (isMultiChoice) {
+    typeInput = "checkbox"
+  }
+  return (
+    <div key={name}>
+      <p>{question}</p>
+      <p className='text-danger'>{errorMessage}</p>
+      {answers.map((answer, key) => (
+        <div className="form-check" key={key}>
+          <input className="form-check-input" type={typeInput} name={name} value={answer.id} id={name} onChange={handleOnChange} />
+          <label className="form-check-label" htmlFor={name} >
+            {answer.content}
+          </label>
+        </div>
+      ))}
+      
+    </div>
+    
+  ) 
+}
+
+
+// bài thi cuối kì của sinh viên Bách Khoa
+// 20 câu trắc nghiệm và 2 câu lý thuyết và 5 mã đề
+// dạng câu hỏi trắc nghiệm sẽ có multiple choices (checkbox) và only choice (radio)
+
+
